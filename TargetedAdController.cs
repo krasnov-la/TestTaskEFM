@@ -45,19 +45,28 @@ public class TargetedAdController() : Controller
         return Ok("Target updated");
     }
 
-    Dictionary<string, IEnumerable<string>>? FiledataToDict(string filedata)
+    static Dictionary<string, IEnumerable<string>>? FiledataToDict(string filedata)
     {
         filedata = Regex.Replace(filedata, @"[^\P{C}\n]+", String.Empty); // удаление всех control символов кроме новой строки
 
+        IEnumerable<Tuple<string, string>> real_list;
 
-        var real_list = // Список пар локация \ площадка данные в входном файле
-            filedata
-            .Split("\n")
-            .SelectMany(line =>
-                line
-                .Split(":")[1]
-                .Split(",")
-                .Select(loc => new Tuple<string, string>(loc.Replace(" ", String.Empty), line.Split(":")[0]))); // Удаление всех пробелов в локациях
+        try
+        {
+            real_list = // Список пар локация \ площадка данные в входном файле
+                filedata
+                .Split("\n")
+                .SelectMany(line =>
+                    line
+                    .Split(":")[1]
+                    .Split(",")
+                    .Select(loc => new Tuple<string, string>(loc.Replace(" ", String.Empty), line.Split(":")[0]))); // Удаление всех пробелов в локациях
+
+        }
+        catch
+        {
+            return null;
+        }
 
         var locations_in_real_list =
             real_list
